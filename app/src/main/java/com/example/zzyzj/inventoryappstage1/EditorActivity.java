@@ -1,15 +1,19 @@
 package com.example.zzyzj.inventoryappstage1;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -27,7 +32,7 @@ import com.example.zzyzj.inventoryappstage1.data.InventoryDbHelper;
 /**
  * Allows user to create a new product or edit an existing one.
  */
-public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
+public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     /** EditText field to enter the inventory name */
     private EditText mProductNameEditText;
@@ -50,7 +55,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private static final int EXISTING_INVENTORY_LOADER = 0;
 
     /**
-     * Content URI for the existing pet (null if it's a new pet)
+     * Content URI for the existing inventory (null if it's a new inventory)
      */
     private Uri mCurrentInventoryUri;
 
@@ -58,6 +63,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
      * Sets the value to false if no changes have been made to pet values
      */
     private boolean mInventoryHasChanged = false;
+
+    String sNum;
+    EditText numText;
 
     // OnTouchListener that listens for any user touches on a View, implying that they are modifying
     // the view, and we change the mInventoryHasChanged boolean to true.
@@ -69,8 +77,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             return false;
         }
     };
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,10 +127,15 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         // Check if this is supposed to be a new inventory
         // and check if all the fields in the editor are blank
-        if (mCurrentInventoryUri == null && TextUtils.isEmpty(nameString)
-                && TextUtils.isEmpty(priceString) && TextUtils.isEmpty(quantityString)
-                && TextUtils.isEmpty(supplierNameString)
-                && TextUtils.isEmpty(supplierPhoneString)) {
+        if (mCurrentInventoryUri == null || TextUtils.isEmpty(nameString)
+                || TextUtils.isEmpty(priceString)
+                || TextUtils.isEmpty(quantityString)
+                || TextUtils.isEmpty(supplierNameString)
+                || TextUtils.isEmpty(supplierPhoneString))
+        {
+            // Make a toast message informing user to fill in the empty info
+            Toast.makeText(this, getString(R.string.editor_insert_inventory_data),
+                    Toast.LENGTH_LONG).show();
             // Since no fields were modified, we can return early without creating a new inventory.
             // No need to create ContentValues and no need to do any ContentProvider operations.
             return;
@@ -138,20 +149,28 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         values.put(InventoryContract.InventoryEntry.COLUMN_QUANTITY, quantityString);
         values.put(InventoryContract.InventoryEntry.COLUMN_SUPPLIER_NAME, supplierNameString);
         values.put(InventoryContract.InventoryEntry.COLUMN_SUPPLIER_PHONE, supplierPhoneString);
-        // If the phone is not provided by the user, don't try to parse the string into an
-        // integer value. Use 0 by default.
-        //int phone = 0;
-        //if (!TextUtils.isEmpty(supplierPhoneString)) {
-            //phone = Integer.parseInt(supplierPhoneString);
-        //}
-        //values.put(InventoryContract.InventoryEntry.COLUMN_SUPPLIER_PHONE, phone);
 
         if (mCurrentInventoryUri == null) {
-        } else {
-            // Otherwise this is an EXISTING inventory, so update the inventory with content URI: mCurrentInventoryUri
-            // and pass in the new ContentValues. Pass in null for the selection and selection args
-            // because mCurrentInventoryUri will already identify the correct row in the database that
-            // we want to modify.
+            // This is a NEW inventory, so insert a new inventory into the provider,
+            // returning the content URI for the new inventory.
+            Uri newUri = getContentResolver().insert(InventoryContract.InventoryEntry.CONTENT_URI, values);
+            // Show a toast message depending on whether or not the insertion was successful.
+            if (newUri == null) {
+                // If the new content URI is null, then there was an error with insertion.
+                Toast.makeText(this, getString(R.string.editor_insert_inventory_failed),
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                // Otherwise, the insertion was successful and we can display a toast.
+                Toast.makeText(this, getString(R.string.editor_insert_inventory_successful),
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+        // Otherwise this is an EXISTING inventory, so update the inventory with content URI: mCurrentInventoryUri
+        // and pass in the new ContentValues. Pass in null for the selection and selection args
+        // because mCurrentInventoryUri will already identify the correct row in the database that
+        // we want to modify.
+
+        if (mCurrentInventoryUri != null) {
             int rowsAffected = getContentResolver().update(mCurrentInventoryUri, values, null, null);
 
             // Show a toast message depending on whether or not the update was successful.
@@ -163,7 +182,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 // Otherwise, the update was successful and we can display a toast.
                 Toast.makeText(this, getString(R.string.editor_update_inventory_successful),
                         Toast.LENGTH_SHORT).show();
-            }}
+            }
+        }
     }
 
     @Override
@@ -236,7 +256,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
      */
     @Override
     public void onBackPressed() {
-        // If the pet hasn't changed, continue with handling back button press
+        // If the inventory hasn't changed, continue with handling back button press
         if (!mInventoryHasChanged) {
             super.onBackPressed();
             return;
@@ -260,14 +280,15 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // Since the editor shows all inventory attributes, define a projection that contains
         // all columns from the pet table
         if (mCurrentInventoryUri == null) {
-            return null;}
+            return null;
+        }
         String[] projection = {
                 InventoryContract.InventoryEntry._ID,
                 InventoryContract.InventoryEntry.COLUMN_PRODUCT_NAME,
                 InventoryContract.InventoryEntry.COLUMN_PRICE,
                 InventoryContract.InventoryEntry.COLUMN_QUANTITY,
                 InventoryContract.InventoryEntry.COLUMN_SUPPLIER_NAME,
-                InventoryContract.InventoryEntry.COLUMN_SUPPLIER_PHONE };
+                InventoryContract.InventoryEntry.COLUMN_SUPPLIER_PHONE};
 
         // This loader will execute the ContentProvider's query method on a background thread
         return new CursorLoader(this,   // Parent activity context
@@ -295,17 +316,65 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             int supplierPhoneColumnIndex = cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_SUPPLIER_PHONE);
             // Extract out the value from the Cursor for the given column index
             String name = cursor.getString(nameColumnIndex);
-            int price = cursor.getInt(priceColumnIndex);
+            String price = cursor.getString(priceColumnIndex);
             int quantity = cursor.getInt(quantityColumnIndex);
             String supplierName = cursor.getString(supplierNameColumnIndex);
             String supplierPhone = cursor.getString(supplierPhoneColumnIndex);
             // Update the views on the screen with the values from the database
             mProductNameEditText.setText(name);
-            mPriceEditText.setText(Integer.toString(price));
+            mPriceEditText.setText(price);
             mQuantityEditText.setText(Integer.toString(quantity));
             mSupplierNameEditText.setText(supplierName);
             mSupplierPhoneEditText.setText(supplierPhone);
-        }}
+        }
+
+        // + quantity button
+        Button positiveButton = findViewById(R.id.quantity_positive_button);
+
+        // Change the quantity when you click the button
+        positiveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int quantity = Integer.valueOf(mQuantityEditText.getText().toString());
+
+                if (quantity >= 0 ) {
+                    quantity = quantity + 1;
+                }
+                mQuantityEditText.setText(Integer.toString(quantity));
+            }
+        });
+
+        // - quantity button
+        Button negativeButton = findViewById(R.id.quantity_negative_button);
+
+        // Change the quantity when you click the button
+        negativeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int quantity = Integer.valueOf(mQuantityEditText.getText().toString());
+
+                if (quantity >= 1) {
+                    quantity = quantity - 1;
+                }
+                mQuantityEditText.setText(Integer.toString(quantity));
+            }
+        });
+
+        // order button to dial number within the mSupplierPhoneEditText
+
+        Button orderButton = findViewById(R.id.order_button);
+        numText = findViewById(R.id.edit_supplier_phone);
+        orderButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sNum = numText.getText().toString();
+                //String phone = String.valueOf(mSupplierPhoneEditText);
+                Intent callIntent = new Intent(Intent.ACTION_DIAL);
+                callIntent.setData(Uri.parse("tel:"+ sNum));
+                startActivity(callIntent);
+            }
+        });
+    }
 
     @Override
     public void onLoaderReset (Loader < Cursor > loader) {

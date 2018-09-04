@@ -78,7 +78,13 @@
     <!-- Toast text for the EditorActivity if edit passed [CHAR LIMIT=50] -->
     <string name="editor_update_inventory_successful">Edit Inventory Successful</string>
 
-    <!-- Text  for quantity field default to 0 [CHAR LIMIT=30] -->
-    <string name="zero_quantity">0</string>
+    <!-- Label for toast message when inventory is saved [CHAR LIMIT=20] -->
+    <string name="editor_insert_inventory_successful">Inventory saved</string>
+
+    <!-- Label for toast message when inventory is not saved [CHAR LIMIT=20] -->
+    <string name="editor_insert_inventory_failed">Error with saving inventory</string>
+
+    <!-- Label for toast message when inventory is not filled in [CHAR LIMIT=20] -->
+    <string name="editor_insert_inventory_data">Name, Price, Quantity, Supplier Name, Supplier Phone Number must not be empty!</string>
 
 </resources>

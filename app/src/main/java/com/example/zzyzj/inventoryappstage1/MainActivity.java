@@ -78,15 +78,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
-    /**
-     * Subtracts -1 to quantity
-     */
-
-    //public void saleButton(View view) {
-        //scoreTeamA = scoreTeamA + 1;
-        //displayForTeamA(scoreTeamA);
-    //}
-
     // for testing if the app is working correctly when selecting "insert dummy data"
 
     private void insertInventory(){
@@ -148,7 +139,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         String[] projection = {
                 InventoryContract.InventoryEntry._ID,
                 InventoryContract.InventoryEntry.COLUMN_PRODUCT_NAME,
-                InventoryContract.InventoryEntry.COLUMN_PRICE};
+                InventoryContract.InventoryEntry.COLUMN_PRICE,
+                InventoryContract.InventoryEntry.COLUMN_QUANTITY};
 
         // this loader will execute the ContentProvider's query method on a background thread
         return new CursorLoader(this,
@@ -161,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        // update {@link PetCursorAdapter} with this new cursor containing updated pet data
+        // update {@link InventoryCursorAdapter} with this new cursor containing updated inventory data
         mCursorAdapter.swapCursor(data);
 
     }

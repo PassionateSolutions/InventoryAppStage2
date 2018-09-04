@@ -35,8 +35,7 @@
         android:id="@+id/sale_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="19dp"
-        android:onClick="saleButton"
-        android:text="Sale"></Button>
+        android:text="Sale"
+        android:focusable="false"/>
+
 </LinearLayout>

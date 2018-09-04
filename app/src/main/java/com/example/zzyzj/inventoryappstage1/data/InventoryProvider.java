@@ -146,7 +146,7 @@ public class InventoryProvider extends ContentProvider {
         // Get writable database
         SQLiteDatabase database = mDbHelper.getWritableDatabase();
 
-        // Insert the new pet with the given values
+        // Insert the new inventory with the given values
         long id = database.insert(InventoryContract.InventoryEntry.TABLE_NAME, null, values);
 
         // If the ID is -1, then the insertion failed. Log an error and return null.
@@ -155,7 +155,7 @@ public class InventoryProvider extends ContentProvider {
             return null;
         }
 
-        // notify all listeners that the data has changed for the pet content URI
+        // notify all listeners that the data has changed for the inventory content URI
         getContext().getContentResolver().notifyChange(uri, null);
 
         // Once we know the ID of the new row in the table,
