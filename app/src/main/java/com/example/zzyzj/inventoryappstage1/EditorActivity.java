@@ -127,7 +127,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         // Check if this is supposed to be a new inventory
         // and check if all the fields in the editor are blank
-        if (mCurrentInventoryUri == null || TextUtils.isEmpty(nameString)
+        if (mCurrentInventoryUri == null && TextUtils.isEmpty(nameString)
                 || TextUtils.isEmpty(priceString)
                 || TextUtils.isEmpty(quantityString)
                 || TextUtils.isEmpty(supplierNameString)
@@ -170,21 +170,20 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // because mCurrentInventoryUri will already identify the correct row in the database that
         // we want to modify.
 
-        if (mCurrentInventoryUri != null) {
-            int rowsAffected = getContentResolver().update(mCurrentInventoryUri, values, null, null);
-
-            // Show a toast message depending on whether or not the update was successful.
-            if (rowsAffected == 0) {
-                // If no rows were affected, then there was an error with the update.
-                Toast.makeText(this, getString(R.string.editor_update_inventory_failed),
-                        Toast.LENGTH_SHORT).show();
+        if (mCurrentInventoryUri != null && TextUtils.isEmpty(nameString)
+                || TextUtils.isEmpty(priceString)
+                || TextUtils.isEmpty(quantityString)
+                || TextUtils.isEmpty(supplierNameString)
+                || TextUtils.isEmpty(supplierPhoneString)) {
+            // Make a toast message informing user to fill in the empty info
+            Toast.makeText(this, getString(R.string.editor_insert_inventory_data),
+                    Toast.LENGTH_LONG).show();
             } else {
                 // Otherwise, the update was successful and we can display a toast.
                 Toast.makeText(this, getString(R.string.editor_update_inventory_successful),
                         Toast.LENGTH_SHORT).show();
             }
         }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
