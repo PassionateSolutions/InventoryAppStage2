@@ -164,7 +164,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // and pass in the new ContentValues. Pass in null for the selection and selection args
         // because mCurrentInventoryUri will already identify the correct row in the database that
         // we want to modify.
-        getContentResolver().update(mCurrentInventoryUri, values, null, null);
+        else {
+            getContentResolver().update(mCurrentInventoryUri, values, null, null);
+        }
 
         if (mCurrentInventoryUri != null && TextUtils.isEmpty(nameString)
                 || TextUtils.isEmpty(priceString)
