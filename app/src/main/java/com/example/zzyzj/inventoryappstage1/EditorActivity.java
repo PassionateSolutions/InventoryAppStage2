@@ -58,6 +58,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
      */
     private boolean mInventoryHasChanged = false;
 
+    // For using the phone call intent
     String sNum;
     EditText numText;
 
@@ -177,6 +178,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 Toast.makeText(this, getString(R.string.editor_update_inventory_successful),
                         Toast.LENGTH_SHORT).show();
             }
+        finish();
         }
 
     @Override
@@ -211,7 +213,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 // Save inventory to database
                 saveInventory();
                 // exit activity
-                finish();
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
