@@ -1,19 +1,14 @@
 package com.example.zzyzj.inventoryappstage1;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -27,7 +22,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.zzyzj.inventoryappstage1.data.InventoryContract;
-import com.example.zzyzj.inventoryappstage1.data.InventoryDbHelper;
 
 /**
  * Allows user to create a new product or edit an existing one.
