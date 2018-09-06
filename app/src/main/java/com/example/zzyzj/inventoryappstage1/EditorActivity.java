@@ -122,7 +122,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
         // Check if this is supposed to be a new inventory
         // and check if all the fields in the editor are blank
-        if (mCurrentInventoryUri == null && TextUtils.isEmpty(nameString)
+        if (TextUtils.isEmpty(nameString)
                 || TextUtils.isEmpty(priceString)
                 || TextUtils.isEmpty(quantityString)
                 || TextUtils.isEmpty(supplierNameString)
